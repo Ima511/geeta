@@ -17,6 +17,7 @@ import org.w3c.dom.Text;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -33,7 +34,12 @@ public class MainActivity extends AppCompatActivity {
         TextView textView = (TextView) findViewById(R.id.textView);
         TextView hindiText = (TextView) findViewById(R.id.hidiText);
         textView.setText((CharSequence) slokasArray().get(0).toString().trim());
-        String  input = (String) slokasArray().get(0).toString().trim();
+        String  input = "";
+        int numIterations = 701;
+        for (int i = 0; i < numIterations; i++) {
+            input = slokasArray().get(i).toString().trim();
+            // do something with the input string
+        }
         // Get the index of the first numerical value
         int index = input.indexOf("।।");
 
@@ -52,31 +58,37 @@ System.out.println("Sanskrit text: " + sanskritText);
     private  ArrayList slokasArray(){
         ArrayList<String> sb = new ArrayList<>();
         try {
-            // Load JSON data from assets folder
-            InputStream is = getAssets().open("chapter_one_sanshin.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            String json = new String(buffer, "UTF-8");
 
-            // Parse JSON data
-            JSONObject jsonObject = new JSONObject(json);
-            JSONArray data = jsonObject.getJSONArray("data");
+            for (int chapter = 1; chapter <= 18; chapter++) {
+                String fileName = "chapter_" + chapter + ".json";
 
-            // Extract contentSanskrit attribute from each object in the data array
+                // Load JSON data from assets folder
+                InputStream is = getAssets().open(fileName);
+                int size = is.available();
+                byte[] buffer = new byte[size];
+                is.read(buffer);
+                is.close();
+                String json = new String(buffer, StandardCharsets.UTF_8);
 
-            for (int i = 0; i < data.length(); i++) {
-                JSONObject obj = data.getJSONObject(i);
-                JSONObject attributes = obj.getJSONObject("attributes");
-                String contentSanskrit = attributes.getString("contentSanskrit");
+                // Parse JSON data
+                JSONObject jsonObject = new JSONObject(json);
+                JSONArray data = jsonObject.getJSONArray("data");
+
+                // Extract contentSanskrit attribute from each object in the data array
+                for (int i = 0; i < data.length(); i++) {
+                    JSONObject obj = data.getJSONObject(i);
+                    JSONObject attributes = obj.getJSONObject("attributes");
+                    String contentSanskrit = attributes.getString("contentSanskrit");
                     contentSanskrit = contentSanskrit.replaceFirst("[^\\p{Alnum}]+", "");
                     sb.add(contentSanskrit);
+                }
             }
+
 
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
+        Log.d("Sloaks_Array",sb.size() + " ");
         return sb;
     }
 
